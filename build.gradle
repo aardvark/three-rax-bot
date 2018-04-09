@@ -1,0 +1,76 @@
+buildscript {
+    ext {
+        springBootVersion = '2.0.0.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.5")
+    }
+}
+
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.google.protobuf'
+
+group = 'ru.aardvark.sc'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 10
+
+repositories {
+    mavenCentral()
+}
+
+
+ext {
+    springStatemachineVersion = '2.0.0.RELEASE'
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-hateoas')
+    compile('org.springframework.boot:spring-boot-starter-integration')
+    compile('org.springframework.boot:spring-boot-starter-websocket')
+    compile('org.springframework.integration:spring-integration-websocket')
+    compile('org.springframework.statemachine:spring-statemachine-starter')
+    compile('com.google.protobuf:protobuf-java')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.statemachine:spring-statemachine-bom:${springStatemachineVersion}"
+    }
+    dependencies {
+        dependency 'com.google.protobuf:protobuf-java:3.0.0'
+        dependency 'org.springframework.integration:spring-integration-websocket:5.0.3.RELEASE'
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+    generatedFilesBaseDir = "$projectDir/gen"
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}
+
+sourceSets {
+    main {
+        proto {}
+    }
+}
+
+idea {
+    module {
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
+    }
+}
